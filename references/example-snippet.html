@@ -1,0 +1,186 @@
+<!-- 
+  example-snippet.html
+  
+  从已经交付并用户确认满意的"OpenList 挂载 115"PDF 中提取的代表性片段。
+  读本文件可以直接看到每类视觉元素的正确写法，照着写就不会出错。
+-->
+
+<!-- ============ 示例 1：封面 ============ -->
+<!-- 
+  封面的三个 tag 通常是：[难度定位][核心卖点][版本年份]
+  例如：[零基础][防风控][2026版]、[15分钟上手][免费][全平台]
+-->
+<div class="cover">
+  <div class="cover-eyebrow">OPENLIST · 115</div>
+  <h1 class="cover-title">把 115 网盘<br/>挂到你自己的服务器上</h1>
+  <p class="cover-subtitle">小白向保姆教程 · 有 Claude Code 就够了</p>
+  <div class="cover-meta">
+    <span class="cover-tag">零基础</span>
+    <span class="cover-tag">防风控</span>
+    <span class="cover-tag">2026版</span>
+    <p style="margin-top: 1cm;">适合对象：没有技术背景，但手里有 Claude Code 的你</p>
+  </div>
+</div>
+
+
+<!-- ============ 示例 2：章节起始 + 引言 ============ -->
+<h1 class="chapter-break"><span class="chapter-num">零</span>这份教程是给谁看的</h1>
+
+<p class="epigraph">
+挂载 115 这件事本来应该很难，但因为你有 Claude Code，它就变得不太难了。
+</p>
+
+<p>如果你正在看这份教程，大概率属于下面这类人：</p>
+
+<ul>
+  <li>你有一个 115 网盘，里面存了很多电影、剧集或者资料</li>
+  <li>你想把这些东西接到 Emby、Jellyfin、Infuse 这样的"家庭影院"软件里看</li>
+</ul>
+
+
+<!-- ============ 示例 3：💡 蓝色提示框 ============ -->
+<div class="callout callout-tip">
+  <strong>💡 一个重要的心态</strong>
+  遇到看不懂的英文报错、奇怪的命令输出，不要慌，直接把它截图或者复制给 Claude Code，
+  说"这是什么意思，怎么解决"。它会帮你翻译和处理。
+</div>
+
+
+<!-- ============ 示例 4：⚠️ 黄色警告框 ============ -->
+<div class="callout">
+  <strong>⚠️ 一个要提前想清楚的问题</strong>
+  你打算把 OpenList 装在哪台机器上？是 NAS？还是家里的旧电脑？还是云服务器？
+  想清楚之后，你要能通过 SSH 远程登录到这台机器。
+</div>
+
+
+<!-- ============ 示例 5：🚨 红色严重警告框 ============ -->
+<div class="callout callout-warn">
+  <strong>⚠️ 立刻把这两个值复制下来！</strong>
+  把它们保存到你的密码管理器或者一个安全的本地文件里。页面一关就找不回来了。
+</div>
+
+
+<!-- ============ 示例 6：💬 紫色 Claude Code 引导块（核心元素！）============ -->
+<!-- 
+  关键点：
+  - <strong> 写短标题（让 Claude Code 做什么）
+  - <div class="cc-prompt"> 里是给 Claude Code 的中文指令
+  - cc-prompt 内容保留换行，直接按想看到的样子写
+  - 指令末尾常加"告诉我下一步是什么"让小白不断档
+-->
+<div class="callout callout-cc">
+  <strong>如果你不知道怎么登录，直接问它：</strong>
+  <div class="cc-prompt">我的 NAS 的 IP 是 192.168.x.x，用户名是 xxx，我想 SSH 登录上去。帮我一步一步做，不要一次发太多命令。</div>
+</div>
+
+<!-- 多要求的长指令示例 -->
+<div class="callout callout-cc">
+  <div class="cc-prompt">请帮我部署 OpenList。要求如下：
+
+1. 在 /opt/openlist 目录下创建一个 compose.yml
+2. 使用镜像 openlistteam/openlist:latest
+3. 端口映射 5244:5244
+4. 数据目录映射到 ./data
+5. 部署完成后告诉我初始密码和访问地址</div>
+</div>
+
+
+<!-- ============ 示例 7：黑色圆形步骤（带标题）============ -->
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-content">
+    <span class="step-title">一个 115 网盘账号</span>
+    普通账号即可，最好是 VIP 会员（速度稳定很多）。手机里装一个 115 的 APP，版本要 35.11.0 以上。
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-content">
+    <span class="step-title">Claude Code（你已经有了）</span>
+    后面所有的命令行操作、Docker 配置，都由它代劳。你只负责把中文描述发给它。
+  </div>
+</div>
+
+
+<!-- ============ 示例 8：黑色圆形步骤（纯描述，无标题）============ -->
+<!-- 
+  这种用于"路径 A"那种步骤——一句话就能说清，不需要额外标题
+-->
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-content">
+    勾选"<strong>使用 OpenList 提供的参数</strong>"
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-content">
+    客户端 ID 和应用密钥<strong>都留空</strong>
+  </div>
+</div>
+
+
+<!-- ============ 示例 9：架构图（ASCII）============ -->
+<!-- 
+  arch-diagram 会保留所有换行和空格，所以可以画流程
+  常用符号：→ ↓ ↑ ← ⇒ ⇐ │ ─ ┌ └ ├ ┤
+-->
+<div class="arch-diagram">
+视频文件（真的很大，在 115 云端）
+        ↓
+STRM 文件（其实只是一行字，写着"视频在那边"）
+        ↓
+Emby 扫描的是 STRM（秒扫）
+        ↓
+播放时才去请求 115 拿直链
+</div>
+
+
+<!-- ============ 示例 10：代码块 ============ -->
+<pre>OpenList 已部署成功！
+管理后台地址：http://192.168.1.100:5244
+初始管理员账号：admin
+初始管理员密码：aB3xK9pQ2mN7</pre>
+
+
+<!-- ============ 示例 11：表格 ============ -->
+<table>
+  <tr><th>类型</th><th>举例</th><th>说明</th></tr>
+  <tr><td>群晖/威联通 NAS</td><td>DS920+、TS-464</td><td>最常见的选择</td></tr>
+  <tr><td>飞牛 NAS</td><td>fnOS 系统</td><td>国产新秀，对网盘支持好</td></tr>
+  <tr><td>闲置的电脑</td><td>旧笔记本、小主机</td><td>装个 Linux 或者直接 Windows</td></tr>
+</table>
+
+
+<!-- ============ 示例 12：速查类表格（小白向）============ -->
+<!-- 
+  附录常用：左列"我想做什么"，右列"发给 Claude Code 的话"
+-->
+<table>
+  <tr><th>我想做什么</th><th>发给 Claude Code 的话</th></tr>
+  <tr><td>看看 OpenList 跑没跑</td><td>"看一下 openlist 容器状态"</td></tr>
+  <tr><td>重启 OpenList</td><td>"重启 openlist 容器"</td></tr>
+  <tr><td>看 OpenList 日志</td><td>"看 openlist 最近 100 行日志"</td></tr>
+</table>
+
+
+<!-- ============ 示例 13：尾页金句卡 ============ -->
+<div class="end-card">
+  挂载只是起点。
+  <br/>
+  真正有意思的是之后你怎么用这个架构——
+  <br/>
+  接 Emby、接 Infuse、接 Apple TV。
+  <br/><br/>
+  花的这几个小时，换回来的是一个能用几年的基础设施。
+</div>
+
+
+<!-- ============ 结尾署名 ============ -->
+<p style="text-align: center; margin-top: 1cm; color: #999; font-size: 9pt;">
+  — 教程完 —<br/>
+  有问题，问 Claude Code。
+</p>

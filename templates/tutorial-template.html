@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>{{TITLE}}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 2cm 2cm 2.5cm 2cm;
+    @bottom-center {
+      content: counter(page) " / " counter(pages);
+      font-family: "Noto Sans CJK SC", sans-serif;
+      font-size: 9pt;
+      color: #999;
+    }
+    @bottom-left {
+      content: "{{FOOTER_LEFT}}";
+      font-family: "Noto Sans CJK SC", sans-serif;
+      font-size: 9pt;
+      color: #999;
+    }
+  }
+
+  @page :first {
+    margin: 0;
+    @bottom-center { content: none; }
+    @bottom-left { content: none; }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Noto Sans CJK SC", "Noto Sans", sans-serif;
+    font-size: 11pt;
+    line-height: 1.75;
+    color: #1a1a1a;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* 封面 */
+  .cover {
+    page-break-after: always;
+    width: 21cm;
+    height: 29.7cm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2cm;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    margin: 0;
+  }
+
+  .cover-eyebrow {
+    font-size: 12pt;
+    color: #666;
+    letter-spacing: 4px;
+    margin-bottom: 1cm;
+  }
+
+  .cover-title {
+    font-size: 32pt;
+    font-weight: 900;
+    color: #111;
+    margin: 0 0 0.5cm 0;
+    line-height: 1.3;
+    /* 封面 H1 不使用正文 h1 的下划线 */
+    border: none;
+    padding: 0;
+  }
+
+  .cover-subtitle {
+    font-size: 14pt;
+    color: #555;
+    margin-bottom: 2cm;
+    font-weight: normal;
+  }
+
+  .cover-meta {
+    font-size: 10pt;
+    color: #888;
+    border-top: 1px solid #ccc;
+    padding-top: 0.5cm;
+    margin-top: 1cm;
+    width: 60%;
+  }
+
+  .cover-tag {
+    display: inline-block;
+    background: #111;
+    color: #fff;
+    padding: 4px 12px;
+    font-size: 9pt;
+    margin: 0 4px;
+    border-radius: 2px;
+  }
+
+  /* 标题层级 */
+  h1 {
+    font-size: 22pt;
+    font-weight: 900;
+    color: #111;
+    margin: 0 0 0.3cm 0;
+    padding-bottom: 0.2cm;
+    border-bottom: 3px solid #111;
+    page-break-before: always;   /* 每章独占一页 */
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* 封面和目录里的 h1 不走章节分页逻辑 */
+  h1.cover-title,
+  .toc h1 {
+    page-break-before: auto;
+  }
+
+  /* 向后兼容：保留 .chapter-break 作为显式分页标记（现在是默认行为，加不加都行） */
+  h1.chapter-break {
+    page-break-before: always;
+    margin-top: 0;
+  }
+
+  h1 .chapter-num {
+    color: #d63384;
+    margin-right: 12px;
+  }
+
+  h2 {
+    font-size: 15pt;
+    font-weight: 700;
+    color: #222;
+    margin: 0.8cm 0 0.3cm 0;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-size: 12pt;
+    font-weight: 700;
+    color: #333;
+    margin: 0.5cm 0 0.2cm 0;
+    page-break-after: avoid;
+  }
+
+  p {
+    margin: 0.3cm 0;
+    text-align: justify;
+  }
+
+  /* 高亮框 */
+  .callout {
+    background: #fff8e1;
+    border-left: 4px solid #ffa000;
+    padding: 12px 16px;
+    margin: 0.5cm 0;
+    border-radius: 2px;
+    page-break-inside: avoid;
+  }
+
+  .callout-tip {
+    background: #e3f2fd;
+    border-left-color: #1976d2;
+  }
+
+  .callout-warn {
+    background: #ffebee;
+    border-left-color: #d32f2f;
+  }
+
+  .callout-cc {
+    background: #f3e5f5;
+    border-left-color: #7b1fa2;
+    /* Claude Code 指令可能很长，允许跨页避免整块被推到下一页造成大片空白 */
+    page-break-inside: auto;
+  }
+
+  .callout-cc .cc-prompt {
+    page-break-inside: auto;
+  }
+
+  .callout strong {
+    color: #000;
+  }
+
+  /* 只有 callout 的第一个 strong（标题）独占一行 */
+  .callout > strong:first-child {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .callout-cc strong {
+    color: #6a1b9a;
+  }
+
+  .callout-cc::before {
+    content: "💬  让 Claude Code 帮你";
+    display: block;
+    font-weight: 700;
+    color: #6a1b9a;
+    margin-bottom: 6px;
+    font-size: 10pt;
+    letter-spacing: 1px;
+  }
+
+  /* 代码块 */
+  pre, code {
+    font-family: "SF Mono", "Monaco", "Menlo", "Consolas", "Courier New", monospace;
+  }
+
+  pre {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 9pt;
+    line-height: 1.5;
+    overflow-x: auto;
+    page-break-inside: avoid;
+    margin: 0.3cm 0;
+  }
+
+  code {
+    background: #f1f3f5;
+    color: #c92a2a;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 9.5pt;
+  }
+
+  pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: 9pt;
+  }
+
+  /* Claude Code 指令引导块 */
+  .cc-prompt {
+    background: #fafafa;
+    border: 1px dashed #999;
+    padding: 12px 16px;
+    margin: 0.3cm 0;
+    border-radius: 4px;
+    font-family: "SF Mono", "Monaco", monospace;
+    font-size: 9.5pt;
+    line-height: 1.6;
+    color: #333;
+    page-break-inside: avoid;
+    white-space: pre-wrap;
+  }
+
+  .cc-prompt::before {
+    content: "▶ 复制下面这段发给 Claude Code：";
+    display: block;
+    font-family: "Noto Sans CJK SC", sans-serif;
+    font-size: 9pt;
+    color: #888;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+
+  /* 步骤编号 */
+  .step {
+    display: flex;
+    margin: 0.5cm 0;
+    page-break-inside: avoid;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: #111;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-right: 14px;
+    font-size: 11pt;
+  }
+
+  .step-content {
+    flex: 1;
+    padding-top: 2px;
+  }
+
+  .step-content .step-title {
+    display: block;
+    font-size: 12pt;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 4px;
+  }
+
+  /* 表格 */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.4cm 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: #f5f5f5;
+    font-weight: 700;
+  }
+
+  /* 列表 */
+  ul, ol {
+    margin: 0.3cm 0;
+    padding-left: 1cm;
+  }
+
+  li {
+    margin: 0.15cm 0;
+  }
+
+  /* 架构图容器 */
+  .arch-diagram {
+    background: #fafafa;
+    border: 1px solid #ddd;
+    padding: 16px;
+    margin: 0.4cm 0;
+    border-radius: 4px;
+    font-family: "SF Mono", "Monaco", monospace;
+    font-size: 9pt;
+    line-height: 1.7;
+    page-break-inside: avoid;
+    white-space: pre-wrap;
+  }
+
+  /* 开篇引言 */
+  .epigraph {
+    font-style: italic;
+    color: #555;
+    margin: 0.5cm 0 0.8cm 0;
+    padding: 0 1cm;
+    border-left: 3px solid #ccc;
+    font-size: 10.5pt;
+  }
+
+  /* 目录 */
+  .toc {
+    page-break-after: always;
+    padding-top: 1cm;
+  }
+
+  .toc h1 {
+    page-break-before: auto;
+    border: none;
+    font-size: 20pt;
+  }
+
+  .toc-item {
+    display: flex;
+    padding: 6px 0;
+    border-bottom: 1px dotted #ccc;
+    font-size: 11pt;
+  }
+
+  .toc-num {
+    width: 30px;
+    color: #d63384;
+    font-weight: 700;
+  }
+
+  .toc-title {
+    flex: 1;
+  }
+
+  /* 强调文字 */
+  strong {
+    color: #000;
+    font-weight: 700;
+  }
+
+  em {
+    color: #444;
+  }
+
+  /* 小字说明 */
+  .note {
+    font-size: 9.5pt;
+    color: #777;
+    margin-top: 0.2cm;
+  }
+
+  /* 分隔线 */
+  hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 0.6cm 0;
+  }
+
+  /* 链接 */
+  a {
+    color: #1976d2;
+    text-decoration: none;
+    word-break: break-all;
+  }
+
+  /* 尾页 */
+  .end-card {
+    background: #f8f9fa;
+    padding: 24px;
+    text-align: center;
+    margin: 1cm 0;
+    border-radius: 4px;
+    font-style: italic;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ 封面 ============ -->
+<div class="cover">
+  <div class="cover-eyebrow">{{COVER_EYEBROW}}</div>
+  <h1 class="cover-title">{{COVER_TITLE}}</h1>
+  <p class="cover-subtitle">{{COVER_SUBTITLE}}</p>
+  <div class="cover-meta">
+    <span class="cover-tag">{{TAG1}}</span>
+    <span class="cover-tag">{{TAG2}}</span>
+    <span class="cover-tag">{{TAG3}}</span>
+    <p style="margin-top: 1cm;">{{COVER_AUDIENCE}}</p>
+  </div>
+</div>
+
+<!-- ============ 目录 ============ -->
+<div class="toc">
+  <h1>目录</h1>
+  <div class="toc-item"><span class="toc-num">零</span><span class="toc-title">{{TOC_0}}</span></div>
+  <div class="toc-item"><span class="toc-num">壹</span><span class="toc-title">{{TOC_1}}</span></div>
+  <div class="toc-item"><span class="toc-num">贰</span><span class="toc-title">{{TOC_2}}</span></div>
+  <div class="toc-item"><span class="toc-num">叁</span><span class="toc-title">{{TOC_3}}</span></div>
+  <div class="toc-item"><span class="toc-num">肆</span><span class="toc-title">{{TOC_4}}</span></div>
+  <div class="toc-item"><span class="toc-num">伍</span><span class="toc-title">{{TOC_5}}</span></div>
+  <div class="toc-item"><span class="toc-num">陆</span><span class="toc-title">{{TOC_6}}</span></div>
+  <div class="toc-item"><span class="toc-num">柒</span><span class="toc-title">{{TOC_7}}</span></div>
+  <div class="toc-item"><span class="toc-num">捌</span><span class="toc-title">{{TOC_8}}</span></div>
+</div>
+
+<!-- ============ 正文从这里开始 ============ -->
+<!-- 
+  章节写法：
+  <h1 class="chapter-break"><span class="chapter-num">零</span>章节标题</h1>  (强制起新页)
+  <h1><span class="chapter-num">壹</span>章节标题</h1>                       (自然流)
+  
+  正文元素可选：
+    <p class="epigraph">引言文字</p>
+    <div class="callout callout-tip"><strong>💡 标题</strong>内容</div>
+    <div class="callout callout-warn"><strong>⚠️ 标题</strong>内容</div>
+    <div class="callout callout-cc"><strong>简短标题</strong><div class="cc-prompt">给 Claude Code 的指令</div></div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><span class="step-title">标题</span>说明</div></div>
+    <div class="arch-diagram">ASCII 流程图，保留换行</div>
+    <pre>代码块</pre>
+    <table>表格</table>
+-->
+
+{{CONTENT}}
+
+<!-- 尾页可选装饰 -->
+<div class="end-card">
+  {{END_CARD}}
+</div>
+
+<p style="text-align: center; margin-top: 1cm; color: #999; font-size: 9pt;">
+  — 教程完 —<br/>
+  {{END_NOTE}}
+</p>
+
+</body>
+</html>
