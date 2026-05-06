@@ -2,7 +2,15 @@
 
 Claude Code skill —— 生成"小白向保姆教程"风格的中文 PDF 文档。
 
+![封面页](docs/images/01_cover.png)
+
 视觉风格：封面全出血灰色渐变、中文数字章节（零壹贰叁）、紫色"让 Claude Code 帮你"引导块、黑色圆形步骤编号、三色语义高亮框（蓝提示 / 黄警告 / 红禁止 / 紫 Claude Code）。
+
+![核心视觉元素一览](docs/images/02_elements.png)
+
+完整 6 页鸟瞰：
+
+![全文鸟瞰图](docs/images/03_overview.png)
 
 ## 安装
 
