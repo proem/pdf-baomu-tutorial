@@ -1,6 +1,6 @@
 # pdf-baomu-tutorial
 
-[![skills.sh](https://skills.sh/b/proem/pdf-baomu-tutorial)](https://skills.sh/proem/pdf-baomu-tutorial)
+[![skills.sh](https://skills.sh/b/proem/pdf-baomu-tutorial?v=2)](https://skills.sh/proem/pdf-baomu-tutorial)
 
 Claude Code skill —— 生成"小白向保姆教程"风格的中文 PDF 文档。
 
