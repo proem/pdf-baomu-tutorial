@@ -1,10 +1,13 @@
 <p align="center">
-  <img src="docs/images/logo.png" alt="pdf-baomu-tutorial" width="240">
+<img src="docs/images/logo.png" alt="pdf-baomu-tutorial" width="100">
 </p>
+<h1 align="center">pdf-baomu-tutorial</h1>
 
-# pdf-baomu-tutorial
+> 📄 保姆级 PDF 教程，让复杂变简单
 
-[![skills.sh](https://skills.sh/b/proem/pdf-baomu-tutorial?v=2)](https://skills.sh/proem/pdf-baomu-tutorial)
+<p align="center">
+<a href="https://skills.sh/proem/pdf-baomu-tutorial"><img src="https://skills.sh/b/proem/pdf-baomu-tutorial?v=2" alt="skills.sh"></a>
+</p>
 
 Claude Code skill —— 生成"小白向保姆教程"风格的中文 PDF 文档。
 
