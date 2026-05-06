@@ -4,9 +4,21 @@
 
 Claude Code skill —— 生成"小白向保姆教程"风格的中文 PDF 文档。
 
+## 安装
+
+推荐用 [`skills`](https://www.npmjs.com/package/skills) CLI 一键安装（自动适配 Claude Code、Cursor、Codex 等任何主流 agent）：
+
 ```bash
 npx skills add proem/pdf-baomu-tutorial
 ```
+
+或者手动 clone 到 Claude Code 的 skills 目录：
+
+```bash
+git clone https://github.com/proem/pdf-baomu-tutorial.git ~/.claude/skills/pdf-baomu-tutorial
+```
+
+重启 Claude Code 会话生效。
 
 ![封面页](docs/images/01_cover.png)
 
@@ -17,16 +29,6 @@ npx skills add proem/pdf-baomu-tutorial
 完整 6 页鸟瞰：
 
 ![全文鸟瞰图](docs/images/03_overview.png)
-
-## 安装
-
-把整个目录放到 `~/.claude/skills/pdf-baomu-tutorial/`：
-
-```bash
-git clone https://github.com/proem/pdf-baomu-tutorial.git ~/.claude/skills/pdf-baomu-tutorial
-```
-
-重启 Claude Code 会话生效。
 
 ## 触发词
 
