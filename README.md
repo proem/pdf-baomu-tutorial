@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/logo.png" alt="pdf-baomu-tutorial" width="240">
+</p>
+
 # pdf-baomu-tutorial
 
 [![skills.sh](https://skills.sh/b/proem/pdf-baomu-tutorial?v=2)](https://skills.sh/proem/pdf-baomu-tutorial)
