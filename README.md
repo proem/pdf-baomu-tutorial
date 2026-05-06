@@ -1,5 +1,5 @@
 <p align="center">
-<img src="docs/images/logo.png" alt="pdf-baomu-tutorial" width="100">
+<img src="docs/images/logo.png" alt="pdf-baomu-tutorial" width="330">
 </p>
 <h1 align="center">pdf-baomu-tutorial</h1>
 
