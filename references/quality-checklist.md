@@ -35,6 +35,7 @@
 
 ### Claude Code 引导块（核心！）
 - [ ] 紫色框里自动显示“💬 让 Claude Code 帮你”标题
+- [ ] **该标题只出现一次**——不要在 HTML 里手写 `<strong>💬 让 Claude Code 帮你</strong>`，模板的 `.callout-cc::before` 会自动生成；手写了会重复显示
 - [ ] `.cc-prompt` 内部保留了所有换行（数字列表、空行等）
 - [ ] 指令以“请帮我…”开头，最后一般有“告诉我下一步”
 - [ ] 字体是等宽字体（SF Mono / Monaco 等）
