@@ -440,6 +440,12 @@
 </div>
 
 <!-- ============ 目录 ============ -->
+<!--
+  ⚠️ 重要：这里默认列出了 9 个章节(零 ~ 捌)。
+  如果你的文档只有 6 章,务必把「陆 / 柒 / 捌」三行 toc-item 整行删掉,
+  否则目录会显示「陆 ☐」「柒 ☐」这种空标题,看起来像 bug。
+  规则:有几章就保留几个 toc-item,把多余的整行删除。
+-->
 <div class="toc">
   <h1>目录</h1>
   <div class="toc-item"><span class="toc-num">零</span><span class="toc-title">{{TOC_0}}</span></div>
