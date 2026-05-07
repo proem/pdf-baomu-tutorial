@@ -92,6 +92,26 @@ python3 scripts/lint_html.py input.html              # 仅扫描
 python3 scripts/lint_html.py input.html --fix        # 原地修复
 ```
 
+**代码块语法高亮（默认开启，需 Node.js + shiki）**:`build_pdf.py` 在 lint 之后、
+渲染之前会跑 `scripts/highlight_html.mjs`(基于 [Shiki](https://github.com/shikijs/shiki))
+处理 HTML 中所有 `<pre><code class="language-X">` 代码块，加上 inline 颜色。
+默认 theme 是 `github-dark`，跟 VS Code 一致。
+
+启用前提：在 skill 根目录跑 `npm install` 装好 shiki。如果 Node.js 或 shiki
+没装，会安全降级——保留原代码块、打印一行警告，不阻塞渲染。也可以 `--no-highlight`
+显式关闭。
+
+代码块要在 markdown 里显式标语言才会被高亮:
+
+````markdown
+```bash
+brew install node
+```
+````
+
+支持的语言：bash / python / js / ts / json / yaml / html / css / sql / 等
+[一百多种主流语言](https://shiki.style/languages)。
+
 ### 2.5 自检清单
 
 **第一步：看 contact sheet**——`<output>_sheet.png`，一张图纵览全文。重点看：

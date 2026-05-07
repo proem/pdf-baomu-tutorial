@@ -67,6 +67,15 @@ pip install weasyprint pillow pypdf pangu beautifulsoup4
 
 > `pangu` 和 `beautifulsoup4` 是 PDF 渲染前**HTML 文案 lint** 用的——自动修复中文段落里的半角标点、中英文空格、半角引号等 (依据 [中文文案排版指北](https://github.com/sparanoid/chinese-copywriting-guidelines))。如果不想用，渲染时加 `--no-lint` 关闭即可。
 
+### Node.js + Shiki（可选，代码块语法高亮）
+
+```bash
+# 在 skill 根目录(有 package.json 的地方)
+npm install
+```
+
+> [Shiki](https://github.com/shikijs/shiki) 是 VS Code 同款的语法高亮器(TextMate grammar + 主题)，给 PDF 里的 `<pre><code>` 代码块加 inline 颜色。默认 theme 是 `github-dark`。如果没装 Node.js 或 shiki，渲染时会自动跳过高亮 (代码块仍按模板的纯色显示)。也可以用 `--no-highlight` 显式关闭。
+
 ### 系统字体（关键）
 
 WeasyPrint 在渲染时需要字形可用，否则会输出空方块 ☐。**CJK + emoji 两类字体都要装**：

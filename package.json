@@ -1,0 +1,19 @@
+{
+  "name": "pdf-baomu-tutorial",
+  "version": "1.0.0",
+  "description": "Claude Code skill: 生成保姆级教程风格 PDF (Shiki syntax highlighting via Node.js)",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "highlight": "node scripts/highlight_html.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/proem/pdf-baomu-tutorial.git"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/proem/pdf-baomu-tutorial#readme",
+  "dependencies": {
+    "shiki": "^4.0.2"
+  }
+}

@@ -18,7 +18,8 @@ import os
 from pathlib import Path
 
 
-def build(input_html: str, output_pdf: str, *, lint: bool = True) -> None:
+def build(input_html: str, output_pdf: str, *,
+          lint: bool = True, highlight: bool = True) -> None:
     """把 HTML 文件转成 PDF。
 
     Args:
@@ -27,6 +28,9 @@ def build(input_html: str, output_pdf: str, *, lint: bool = True) -> None:
         lint:        是否在渲染前跑 HTML lint(默认 True)
                      lint 会修中文段落里的半角标点 / 中英文空格 / 引号等
                      依据中文文案排版指北 + 自定义规则
+        highlight:   是否对代码块跑 Shiki 语法高亮(默认 True)
+                     需要 Node.js + npm install shiki(在 skill 根目录)
+                     没装会安全降级到原 HTML
     """
     try:
         from weasyprint import HTML
@@ -44,22 +48,33 @@ def build(input_html: str, output_pdf: str, *, lint: bool = True) -> None:
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 用 lint_html 的 context manager:自动跑 lint(默认),失败安全降级
+    # 嵌套 context manager:lint_for_render → highlight_for_render → render
+    # 都失败安全降级(yield 原路径),自动清理临时文件
     sys.path.insert(0, str(Path(__file__).parent))
+    from contextlib import contextmanager
+
     try:
         from lint_html import lint_for_render
     except ImportError:
-        from contextlib import contextmanager
-
         @contextmanager
         def lint_for_render(p, lint=True):  # type: ignore
             print("⚠ Lint 跳过(缺依赖);用 --no-lint 显式关闭",
                   file=sys.stderr)
             yield Path(p)
 
-    with lint_for_render(input_path, lint=lint) as render_path:
-        print(f"正在生成 PDF:{render_path.name} → {output_path.name}")
-        HTML(str(render_path)).write_pdf(str(output_path))
+    try:
+        from highlight_html import highlight_for_render
+    except ImportError:
+        @contextmanager
+        def highlight_for_render(p, highlight=True):  # type: ignore
+            print("⚠ Highlight 跳过(缺依赖);用 --no-highlight 显式关闭",
+                  file=sys.stderr)
+            yield Path(p)
+
+    with lint_for_render(input_path, lint=lint) as linted_path:
+        with highlight_for_render(linted_path, highlight=highlight) as render_path:
+            print(f"正在生成 PDF:{render_path.name} → {output_path.name}")
+            HTML(str(render_path)).write_pdf(str(output_path))
 
     size_kb = output_path.stat().st_size / 1024
     print(f"✓ 完成,大小 {size_kb:.1f} KB,路径:{output_path}")
@@ -109,7 +124,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     do_lint = "--no-lint" not in sys.argv
-    build(sys.argv[1], sys.argv[2], lint=do_lint)
+    do_highlight = "--no-highlight" not in sys.argv
+    build(sys.argv[1], sys.argv[2], lint=do_lint, highlight=do_highlight)
 
     # 可选：加 --preview 参数自动抽几页看
     if "--preview" in sys.argv:

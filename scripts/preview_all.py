@@ -287,6 +287,8 @@ def main():
     ap.add_argument("--no-sheet", action="store_true", help="不生成 contact sheet")
     ap.add_argument("--no-lint", action="store_true",
                     help="跳过 HTML 文案 lint（默认会跑：修中文标点/空格/引号）")
+    ap.add_argument("--no-highlight", action="store_true",
+                    help="跳过代码块语法高亮（默认会跑 Shiki，需 Node.js + shiki）")
     ap.add_argument("--sheet-dpi", type=int, default=55, help="contact sheet 每页 DPI（默认 55）")
     args = ap.parse_args()
 
@@ -302,37 +304,47 @@ def main():
             print("错误:需要 weasyprint", file=sys.stderr)
             sys.exit(1)
 
-        # 用 lint_html 的 context manager(与 build_pdf 一致)
+        # 嵌套 context manager(与 build_pdf 一致):lint → highlight → render
         sys.path.insert(0, str(Path(__file__).parent))
+        from contextlib import contextmanager
+
         try:
             from lint_html import lint_for_render
         except ImportError:
-            from contextlib import contextmanager
-
             @contextmanager
             def lint_for_render(p, lint=True):
                 print("⚠ Lint 跳过(缺依赖)", file=sys.stderr)
                 yield Path(p)
 
-        with lint_for_render(inp, lint=not args.no_lint) as render_path:
-            print(f"渲染 {render_path.name}...")
-            doc = HTML(filename=str(render_path)).render()
-            reports = scan_density(doc)
-            hints = analyze_hints(reports, pages=list(doc.pages))
-            print_report(reports, hints)
+        try:
+            from highlight_html import highlight_for_render
+        except ImportError:
+            @contextmanager
+            def highlight_for_render(p, highlight=True):
+                print("⚠ Highlight 跳过(缺依赖)", file=sys.stderr)
+                yield Path(p)
 
-            if not args.scan_only:
-                if not args.output:
-                    print("错误:HTML 输入需要指定 output 路径", file=sys.stderr)
-                    sys.exit(1)
-                out = Path(args.output).resolve()
-                out.parent.mkdir(parents=True, exist_ok=True)
-                doc.write_pdf(str(out))
-                size_kb = out.stat().st_size / 1024
-                print(f"\n✓ PDF: {out}  ({size_kb:.1f} KB, {len(reports)} 页)")
-                if not args.no_sheet:
-                    sheet = out.with_name(out.stem + "_sheet.png")
-                    make_contact_sheet(out, sheet, dpi=args.sheet_dpi)
+        with lint_for_render(inp, lint=not args.no_lint) as linted_path:
+            with highlight_for_render(linted_path,
+                                      highlight=not args.no_highlight) as render_path:
+                print(f"渲染 {render_path.name}...")
+                doc = HTML(filename=str(render_path)).render()
+                reports = scan_density(doc)
+                hints = analyze_hints(reports, pages=list(doc.pages))
+                print_report(reports, hints)
+
+                if not args.scan_only:
+                    if not args.output:
+                        print("错误:HTML 输入需要指定 output 路径", file=sys.stderr)
+                        sys.exit(1)
+                    out = Path(args.output).resolve()
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    doc.write_pdf(str(out))
+                    size_kb = out.stat().st_size / 1024
+                    print(f"\n✓ PDF: {out}  ({size_kb:.1f} KB, {len(reports)} 页)")
+                    if not args.no_sheet:
+                        sheet = out.with_name(out.stem + "_sheet.png")
+                        make_contact_sheet(out, sheet, dpi=args.sheet_dpi)
     elif inp.suffix.lower() == ".pdf":
         # 只做 contact sheet
         if args.no_sheet:

@@ -237,6 +237,23 @@
     font-size: 9pt;
   }
 
+  /* Shiki 语法高亮:让 inline 背景色生效,长行自动换行避免溢出 */
+  pre.shiki {
+    /* 让 Shiki 的 inline background-color 不被覆盖 */
+    background: unset !important;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  pre.shiki code {
+    /* Shiki 的 <span class="line"> 已经处理换行,这里清掉默认样式 */
+    background: transparent;
+    color: inherit;
+  }
+  pre.shiki .line {
+    /* 每行单独显示,保留 PDF 里的换行结构 */
+    display: inline;
+  }
+
   /* Claude Code 指令引导块 */
   .cc-prompt {
     background: #fafafa;
