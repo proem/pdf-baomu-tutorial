@@ -9,7 +9,7 @@
 <a href="https://skills.sh/proem/pdf-baomu-tutorial"><img src="https://skills.sh/b/proem/pdf-baomu-tutorial?v=2" alt="skills.sh"></a>
 </p>
 
-Claude Code skill —— 生成"小白向保姆教程"风格的中文 PDF 文档。
+Claude Code skill —— 生成“小白向保姆教程”风格的中文 PDF 文档。
 
 ## 安装
 
@@ -29,7 +29,7 @@ git clone https://github.com/proem/pdf-baomu-tutorial.git ~/.claude/skills/pdf-b
 
 ![封面页](docs/images/01_cover.png)
 
-视觉风格：封面全出血灰色渐变、中文数字章节（零壹贰叁）、紫色"让 Claude Code 帮你"引导块、黑色圆形步骤编号、三色语义高亮框（蓝提示 / 黄警告 / 红禁止 / 紫 Claude Code）。
+视觉风格：封面全出血灰色渐变、中文数字章节（零壹贰叁）、紫色“让 Claude Code 帮你”引导块、黑色圆形步骤编号、三色语义高亮框（蓝提示 / 黄警告 / 红禁止 / 紫 Claude Code）。
 
 ![核心视觉元素一览](docs/images/02_elements.png)
 
@@ -39,7 +39,7 @@ git clone https://github.com/proem/pdf-baomu-tutorial.git ~/.claude/skills/pdf-b
 
 ## 触发词
 
-"帮我做一份 PDF"、"生成教程 PDF"、"用保姆教程风格写"、"小白向教程"、"把这个变成 PDF"、"做成那个风格的 PDF"、"出一份 PDF" 等。
+“帮我做一份 PDF”、“生成教程 PDF”、“用保姆教程风格写”、“小白向教程”、“把这个变成 PDF”、“做成那个风格的 PDF”、“出一份 PDF” 等。
 
 ## 目录结构
 

@@ -54,7 +54,7 @@ def build(input_html: str, output_pdf: str) -> None:
 def preview_pages(pdf_path: str, pages: str = "1,3,-1") -> None:
     """用 pdftoppm 抽取指定页为 PNG 用于检查排版。
 
-    pages 格式: "1,3,-1" (首页、第3页、末页)
+    pages 格式： "1,3,-1" (首页、第3页、末页)
     """
     import subprocess
     from pypdf import PdfReader
