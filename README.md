@@ -70,8 +70,8 @@ pip install weasyprint pillow pypdf pangu beautifulsoup4
 ### Node.js + Shiki（可选，代码块语法高亮）
 
 ```bash
-# 在 skill 根目录(有 package.json 的地方)
-npm install
+# 在 skill 根目录(~/.claude/skills/pdf-baomu-tutorial/ 等)
+npm install shiki
 ```
 
 > [Shiki](https://github.com/shikijs/shiki) 是 VS Code 同款的语法高亮器(TextMate grammar + 主题)，给 PDF 里的 `<pre><code>` 代码块加 inline 颜色。默认 theme 是 `github-dark`。如果没装 Node.js 或 shiki，渲染时会自动跳过高亮 (代码块仍按模板的纯色显示)。也可以用 `--no-highlight` 显式关闭。
