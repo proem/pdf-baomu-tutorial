@@ -62,8 +62,10 @@ pdf-baomu-tutorial/
 ### Python 包
 
 ```bash
-pip install weasyprint pillow pypdf
+pip install weasyprint pillow pypdf pangu beautifulsoup4
 ```
+
+> `pangu` 和 `beautifulsoup4` 是 PDF 渲染前**HTML 文案 lint** 用的——自动修复中文段落里的半角标点、中英文空格、半角引号等 (依据 [中文文案排版指北](https://github.com/sparanoid/chinese-copywriting-guidelines))。如果不想用，渲染时加 `--no-lint` 关闭即可。
 
 ### 系统字体（关键）
 

@@ -79,6 +79,19 @@ python3 scripts/preview_all.py input.html --scan-only
 
 旧脚本 `build_pdf.py` 保留作为“只生成 PDF、不扫描”的简化入口。
 
+**HTML 文案 lint（默认开启）**:`build_pdf.py` 在 WeasyPrint 渲染前会自动跑
+`scripts/lint_html.py` 修复 HTML 中文段落的排版问题——半角标点 → 全角、
+中英文之间加空格、数字与单位空格、半角引号 → 中文引号、重复标点合并等，依据 [中文文案排版指北](https://github.com/sparanoid/chinese-copywriting-guidelines)
++ 自定义规则。lint 只动 text node, 跳过 `<pre>` `<code>` `<script>` `<style>`
+标签内的内容，绝不破坏代码、URL、CSS。如果不想跑 lint, 加 `--no-lint` 关闭。
+
+也可以单独跑 lint 检查 / 修复 HTML:
+
+```bash
+python3 scripts/lint_html.py input.html              # 仅扫描
+python3 scripts/lint_html.py input.html --fix        # 原地修复
+```
+
 ### 2.5 自检清单
 
 **第一步：看 contact sheet**——`<output>_sheet.png`，一张图纵览全文。重点看：

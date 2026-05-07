@@ -18,8 +18,16 @@ import os
 from pathlib import Path
 
 
-def build(input_html: str, output_pdf: str) -> None:
-    """把 HTML 文件转成 PDF。"""
+def build(input_html: str, output_pdf: str, *, lint: bool = True) -> None:
+    """把 HTML 文件转成 PDF。
+
+    Args:
+        input_html:  输入 HTML 文件路径
+        output_pdf:  输出 PDF 文件路径
+        lint:        是否在渲染前跑 HTML lint(默认 True)
+                     lint 会修中文段落里的半角标点 / 中英文空格 / 引号等
+                     依据中文文案排版指北 + 自定义规则
+    """
     try:
         from weasyprint import HTML
     except ImportError:
@@ -36,8 +44,32 @@ def build(input_html: str, output_pdf: str) -> None:
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"正在生成 PDF：{input_path.name} → {output_path.name}")
-    HTML(str(input_path)).write_pdf(str(output_path))
+    # ---------- 新加：HTML 文案 lint ----------
+    render_path = input_path
+    if lint:
+        try:
+            sys.path.insert(0, str(Path(__file__).parent))
+            from lint_html import lint_html as run_lint
+            html = input_path.read_text(encoding='utf-8')
+            fixed, changed = run_lint(html, dry_run=False)
+            if changed > 0:
+                # 写到临时文件，不覆盖原 HTML
+                render_path = output_path.parent / f'.{input_path.stem}.linted.html'
+                render_path.write_text(fixed, encoding='utf-8')
+                print(f"✓ Lint：修复 {changed} 个 text node "
+                      f"(中文标点 / 空格 / 引号)；用 --no-lint 关闭")
+            else:
+                print("✓ Lint：文案无问题")
+        except ImportError as e:
+            print(f"⚠ Lint 跳过(缺依赖：{e})；用 --no-lint 显式关闭",
+                  file=sys.stderr)
+
+    print(f"正在生成 PDF：{render_path.name} → {output_path.name}")
+    HTML(str(render_path)).write_pdf(str(output_path))
+
+    # 清理临时 lint 文件
+    if lint and render_path != input_path and render_path.exists():
+        render_path.unlink()
 
     size_kb = output_path.stat().st_size / 1024
     print(f"✓ 完成，大小 {size_kb:.1f} KB，路径：{output_path}")
@@ -86,7 +118,8 @@ if __name__ == "__main__":
         print(__doc__)
         sys.exit(1)
 
-    build(sys.argv[1], sys.argv[2])
+    do_lint = "--no-lint" not in sys.argv
+    build(sys.argv[1], sys.argv[2], lint=do_lint)
 
     # 可选：加 --preview 参数自动抽几页看
     if "--preview" in sys.argv:
