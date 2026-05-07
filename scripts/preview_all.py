@@ -285,6 +285,8 @@ def main():
     ap.add_argument("output", nargs="?", help="输出 PDF 路径（输入是 HTML 时必填）")
     ap.add_argument("--scan-only", action="store_true", help="只做填充率扫描，不写盘")
     ap.add_argument("--no-sheet", action="store_true", help="不生成 contact sheet")
+    ap.add_argument("--no-lint", action="store_true",
+                    help="跳过 HTML 文案 lint（默认会跑：修中文标点/空格/引号）")
     ap.add_argument("--sheet-dpi", type=int, default=55, help="contact sheet 每页 DPI（默认 55）")
     args = ap.parse_args()
 
@@ -300,8 +302,31 @@ def main():
             print("错误：需要 weasyprint", file=sys.stderr)
             sys.exit(1)
 
-        print(f"渲染 {inp.name}...")
-        doc = HTML(filename=str(inp)).render()
+        # HTML 文案 lint(默认开启,与 build_pdf 一致):
+        # 修中文段落里的半角标点 / 中英文空格 / 引号等
+        # 用 --no-lint 关闭
+        render_path = inp
+        cleanup_path = None
+        if not getattr(args, 'no_lint', False):
+            try:
+                sys.path.insert(0, str(Path(__file__).parent))
+                from lint_html import lint_html as run_lint
+                html_text = inp.read_text(encoding='utf-8')
+                fixed, changed = run_lint(html_text, dry_run=False)
+                if changed > 0:
+                    cleanup_path = (Path(args.output).parent / f'.{inp.stem}.linted.html'
+                                    if args.output else inp.with_suffix('.linted.html'))
+                    cleanup_path.write_text(fixed, encoding='utf-8')
+                    render_path = cleanup_path
+                    print(f"✓ Lint：修复 {changed} 个 text node "
+                          f"(中文标点 / 空格 / 引号)；用 --no-lint 关闭")
+                else:
+                    print("✓ Lint：文案无问题")
+            except ImportError as e:
+                print(f"⚠ Lint 跳过(缺依赖：{e})", file=sys.stderr)
+
+        print(f"渲染 {render_path.name}...")
+        doc = HTML(filename=str(render_path)).render()
         reports = scan_density(doc)
         hints = analyze_hints(reports, pages=list(doc.pages))
         print_report(reports, hints)
@@ -318,6 +343,10 @@ def main():
             if not args.no_sheet:
                 sheet = out.with_name(out.stem + "_sheet.png")
                 make_contact_sheet(out, sheet, dpi=args.sheet_dpi)
+
+        # 清理 lint 临时文件
+        if cleanup_path and cleanup_path.exists():
+            cleanup_path.unlink()
     elif inp.suffix.lower() == ".pdf":
         # 只做 contact sheet
         if args.no_sheet:
