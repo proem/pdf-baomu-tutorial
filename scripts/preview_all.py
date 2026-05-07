@@ -299,54 +299,40 @@ def main():
         try:
             from weasyprint import HTML
         except ImportError:
-            print("错误：需要 weasyprint", file=sys.stderr)
+            print("错误:需要 weasyprint", file=sys.stderr)
             sys.exit(1)
 
-        # HTML 文案 lint(默认开启,与 build_pdf 一致):
-        # 修中文段落里的半角标点 / 中英文空格 / 引号等
-        # 用 --no-lint 关闭
-        render_path = inp
-        cleanup_path = None
-        if not getattr(args, 'no_lint', False):
-            try:
-                sys.path.insert(0, str(Path(__file__).parent))
-                from lint_html import lint_html as run_lint
-                html_text = inp.read_text(encoding='utf-8')
-                fixed, changed = run_lint(html_text, dry_run=False)
-                if changed > 0:
-                    cleanup_path = (Path(args.output).parent / f'.{inp.stem}.linted.html'
-                                    if args.output else inp.with_suffix('.linted.html'))
-                    cleanup_path.write_text(fixed, encoding='utf-8')
-                    render_path = cleanup_path
-                    print(f"✓ Lint：修复 {changed} 个 text node "
-                          f"(中文标点 / 空格 / 引号)；用 --no-lint 关闭")
-                else:
-                    print("✓ Lint：文案无问题")
-            except ImportError as e:
-                print(f"⚠ Lint 跳过(缺依赖：{e})", file=sys.stderr)
+        # 用 lint_html 的 context manager(与 build_pdf 一致)
+        sys.path.insert(0, str(Path(__file__).parent))
+        try:
+            from lint_html import lint_for_render
+        except ImportError:
+            from contextlib import contextmanager
 
-        print(f"渲染 {render_path.name}...")
-        doc = HTML(filename=str(render_path)).render()
-        reports = scan_density(doc)
-        hints = analyze_hints(reports, pages=list(doc.pages))
-        print_report(reports, hints)
+            @contextmanager
+            def lint_for_render(p, lint=True):
+                print("⚠ Lint 跳过(缺依赖)", file=sys.stderr)
+                yield Path(p)
 
-        if not args.scan_only:
-            if not args.output:
-                print("错误：HTML 输入需要指定 output 路径", file=sys.stderr)
-                sys.exit(1)
-            out = Path(args.output).resolve()
-            out.parent.mkdir(parents=True, exist_ok=True)
-            doc.write_pdf(str(out))
-            size_kb = out.stat().st_size / 1024
-            print(f"\n✓ PDF: {out}  ({size_kb:.1f} KB, {len(reports)} 页)")
-            if not args.no_sheet:
-                sheet = out.with_name(out.stem + "_sheet.png")
-                make_contact_sheet(out, sheet, dpi=args.sheet_dpi)
+        with lint_for_render(inp, lint=not args.no_lint) as render_path:
+            print(f"渲染 {render_path.name}...")
+            doc = HTML(filename=str(render_path)).render()
+            reports = scan_density(doc)
+            hints = analyze_hints(reports, pages=list(doc.pages))
+            print_report(reports, hints)
 
-        # 清理 lint 临时文件
-        if cleanup_path and cleanup_path.exists():
-            cleanup_path.unlink()
+            if not args.scan_only:
+                if not args.output:
+                    print("错误:HTML 输入需要指定 output 路径", file=sys.stderr)
+                    sys.exit(1)
+                out = Path(args.output).resolve()
+                out.parent.mkdir(parents=True, exist_ok=True)
+                doc.write_pdf(str(out))
+                size_kb = out.stat().st_size / 1024
+                print(f"\n✓ PDF: {out}  ({size_kb:.1f} KB, {len(reports)} 页)")
+                if not args.no_sheet:
+                    sheet = out.with_name(out.stem + "_sheet.png")
+                    make_contact_sheet(out, sheet, dpi=args.sheet_dpi)
     elif inp.suffix.lower() == ".pdf":
         # 只做 contact sheet
         if args.no_sheet:

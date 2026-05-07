@@ -44,35 +44,25 @@ def build(input_html: str, output_pdf: str, *, lint: bool = True) -> None:
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # ---------- 新加：HTML 文案 lint ----------
-    render_path = input_path
-    if lint:
-        try:
-            sys.path.insert(0, str(Path(__file__).parent))
-            from lint_html import lint_html as run_lint
-            html = input_path.read_text(encoding='utf-8')
-            fixed, changed = run_lint(html, dry_run=False)
-            if changed > 0:
-                # 写到临时文件，不覆盖原 HTML
-                render_path = output_path.parent / f'.{input_path.stem}.linted.html'
-                render_path.write_text(fixed, encoding='utf-8')
-                print(f"✓ Lint：修复 {changed} 个 text node "
-                      f"(中文标点 / 空格 / 引号)；用 --no-lint 关闭")
-            else:
-                print("✓ Lint：文案无问题")
-        except ImportError as e:
-            print(f"⚠ Lint 跳过(缺依赖：{e})；用 --no-lint 显式关闭",
+    # 用 lint_html 的 context manager:自动跑 lint(默认),失败安全降级
+    sys.path.insert(0, str(Path(__file__).parent))
+    try:
+        from lint_html import lint_for_render
+    except ImportError:
+        from contextlib import contextmanager
+
+        @contextmanager
+        def lint_for_render(p, lint=True):  # type: ignore
+            print("⚠ Lint 跳过(缺依赖);用 --no-lint 显式关闭",
                   file=sys.stderr)
+            yield Path(p)
 
-    print(f"正在生成 PDF：{render_path.name} → {output_path.name}")
-    HTML(str(render_path)).write_pdf(str(output_path))
-
-    # 清理临时 lint 文件
-    if lint and render_path != input_path and render_path.exists():
-        render_path.unlink()
+    with lint_for_render(input_path, lint=lint) as render_path:
+        print(f"正在生成 PDF:{render_path.name} → {output_path.name}")
+        HTML(str(render_path)).write_pdf(str(output_path))
 
     size_kb = output_path.stat().st_size / 1024
-    print(f"✓ 完成，大小 {size_kb:.1f} KB，路径：{output_path}")
+    print(f"✓ 完成,大小 {size_kb:.1f} KB,路径:{output_path}")
 
     # 输出页数
     try:

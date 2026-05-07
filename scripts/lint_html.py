@@ -26,6 +26,7 @@ lint_html.py — HTML 文案 lint：对中文 text node 应用全角标点 + 空
 
 import sys
 import re
+from contextlib import contextmanager
 from pathlib import Path
 
 try:
@@ -135,6 +136,55 @@ def lint_html(html, dry_run=False):
         out = out.replace(original, fixed, 1)
 
     return out, len(replacements)
+
+
+@contextmanager
+def lint_for_render(html_path, lint=True):
+    """Context manager:为 PDF 渲染准备 HTML(可选 lint),自动清理临时文件。
+
+    用法:
+        with lint_for_render(input.html, lint=True) as render_path:
+            HTML(filename=str(render_path)).write_pdf(...)
+
+    行为:
+    - lint=False 或 lint 失败 → yield 原路径,不写临时文件
+    - lint=True 且 changed=0 → yield 原路径(无需修改)
+    - lint=True 且 changed>0 → 写到 .{stem}.linted.html 并 yield 该路径
+    - 退出 with 块时自动删除临时文件(即使渲染抛异常)
+
+    打印控制台信息("✓ Lint:..." / "⚠ Lint 跳过...")便于诊断。
+    """
+    html_path = Path(html_path)
+
+    if not lint:
+        yield html_path
+        return
+
+    try:
+        html_text = html_path.read_text(encoding='utf-8')
+        fixed, changed = lint_html(html_text, dry_run=False)
+    except Exception as e:
+        print(f"⚠ Lint 跳过(异常:{e});用 --no-lint 显式关闭",
+              file=sys.stderr)
+        yield html_path
+        return
+
+    if changed == 0:
+        print("✓ Lint:文案无问题")
+        yield html_path
+        return
+
+    # 修过内容,写临时文件
+    tmp_path = html_path.parent / f'.{html_path.stem}.linted.html'
+    tmp_path.write_text(fixed, encoding='utf-8')
+    print(f"✓ Lint:修复 {changed} 个 text node "
+          f"(中文标点 / 空格 / 引号);用 --no-lint 关闭")
+
+    try:
+        yield tmp_path
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
 
 
 def main():
