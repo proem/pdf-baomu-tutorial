@@ -4,3 +4,11 @@ __pycache__/
 .DS_Store
 .linted.html
 .highlighted.html
+
+# Bundled fonts — downloaded by scripts/install_fonts.py at first build.
+# We do not vendor ~33MB of OTF files into the repo; the script fetches
+# them from upstream into assets/fonts/ on demand.
+assets/fonts/*.otf
+assets/fonts/*.ttf
+assets/fonts/*.woff
+assets/fonts/*.woff2

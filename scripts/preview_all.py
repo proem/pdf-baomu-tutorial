@@ -299,14 +299,35 @@ def main():
 
     if inp.suffix.lower() == ".html":
         try:
-            from weasyprint import HTML
+            from weasyprint import HTML, CSS
+            from weasyprint.text.fonts import FontConfiguration
         except ImportError:
             print("错误:需要 weasyprint", file=sys.stderr)
             sys.exit(1)
 
-        # 嵌套 context manager(与 build_pdf 一致):lint → highlight → render
+        # Same dependency setup as build_pdf.py: lint → highlight → render.
         sys.path.insert(0, str(Path(__file__).parent))
         from contextlib import contextmanager
+
+        # Skill root and bundled stylesheet path. Inject styles.css with
+        # base_url at the skill's templates/ dir so the @font-face
+        # url("../assets/fonts/...") references resolve to the bundled
+        # fonts regardless of where the user's filled HTML lives.
+        skill_root = Path(__file__).resolve().parent.parent
+        styles_css = skill_root / "templates" / "styles.css"
+
+        # Bootstrap bundled fonts on first run.
+        try:
+            import install_fonts  # type: ignore
+            if not install_fonts.check_installed():
+                print("· 首次渲染：正在下载捆绑字体到 assets/fonts/ ...")
+                try:
+                    install_fonts.install(force=False)
+                except SystemExit as exc:
+                    print(f"⚠ 字体下载失败({exc})，使用系统字体兜底",
+                          file=sys.stderr)
+        except ImportError:
+            pass
 
         try:
             from lint_html import lint_for_render
@@ -328,7 +349,12 @@ def main():
             with highlight_for_render(linted_path,
                                       highlight=not args.no_highlight) as render_path:
                 print(f"渲染 {render_path.name}...")
-                doc = HTML(filename=str(render_path)).render()
+                font_config = FontConfiguration()
+                stylesheet = CSS(filename=str(styles_css), font_config=font_config)
+                doc = HTML(filename=str(render_path)).render(
+                    stylesheets=[stylesheet],
+                    font_config=font_config,
+                )
                 reports = scan_density(doc)
                 hints = analyze_hints(reports, pages=list(doc.pages))
                 print_report(reports, hints)
