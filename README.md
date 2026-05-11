@@ -47,14 +47,19 @@ git clone https://github.com/proem/pdf-baomu-tutorial.git ~/.claude/skills/pdf-b
 pdf-baomu-tutorial/
 ├── SKILL.md                            # 风格说明 + 写作流程
 ├── references/
+│   ├── design.md                       # 设计语言规范（color tokens / type scale / callout taxonomy / 不允许做的事）
 │   ├── writing-guide.md                # 写作准则
 │   ├── quality-checklist.md            # 完稿前自检清单
 │   └── example-snippet.html            # HTML 片段范例
 ├── templates/
-│   └── tutorial-template.html          # 主模板（含 CSS）
+│   ├── tutorial-template.html          # 主模板（HTML 骨架）
+│   └── styles.css                      # 设计系统实现（@font-face + 全部样式）
+├── assets/
+│   └── fonts/                          # 由 install_fonts.py 在首次构建时填充（已 .gitignore）
 └── scripts/
-    ├── build_pdf.py                    # HTML → PDF（WeasyPrint）
-    └── preview_all.py                  # 渲染 + 填充率扫描 + contact sheet 三合一
+    ├── build_pdf.py                    # HTML → PDF（WeasyPrint，自动检测字体）
+    ├── preview_all.py                  # 渲染 + 填充率扫描 + contact sheet 三合一
+    └── install_fonts.py                # 把 Noto Sans CJK SC + JetBrains Mono 下载到 assets/fonts/
 ```
 
 ## 依赖
@@ -76,26 +81,49 @@ npm install shiki
 
 > [Shiki](https://github.com/shikijs/shiki) 是 VS Code 同款的语法高亮器(TextMate grammar + 主题)，给 PDF 里的 `<pre><code>` 代码块加 inline 颜色。默认 theme 是 `github-dark`。如果没装 Node.js 或 shiki，渲染时会自动跳过高亮 (代码块仍按模板的纯色显示)。也可以用 `--no-highlight` 显式关闭。
 
-### 系统字体（关键）
+### 字体（自动下载，无需 sudo）
 
-WeasyPrint 在渲染时需要字形可用，否则会输出空方块 ☐。**CJK + emoji 两类字体都要装**：
+WeasyPrint 在渲染时需要字形可用，否则会输出空方块 ☐。本 skill 把所需字体打包成了下载脚本——**首次跑 `build_pdf.py` 会自动调用 `scripts/install_fonts.py`，把字体下载到 `assets/fonts/`**，不依赖系统安装、不需要 sudo。
+
+```bash
+# 也可以提前手动跑一次，避免首次构建时等下载
+python3 scripts/install_fonts.py
+```
+
+下载的字体（约 33 MB，全 OFL 开源协议，幂等，已存在的文件会跳过）：
+
+| 字体 | 用途 |
+|---|---|
+| `NotoSansCJKsc-Regular.otf` / `-Bold.otf` | 中文正文 + 章节标题（来自 [notofonts/noto-cjk](https://github.com/notofonts/noto-cjk)）|
+| `JetBrainsMono-Regular.ttf` | 代码块、Claude Code 引导块、章节数字标签（来自 [JetBrains/JetBrainsMono](https://github.com/JetBrains/JetBrainsMono)）|
+
+`styles.css` 里的 `@font-face` 用 `local()` 优先，所以如果系统已经装过对应字体（例如 macOS 上的 PingFang SC、Linux 上的 `fonts-noto-cjk`），会直接复用、不下载冗余文件。
+
+> 删掉 `assets/fonts/` 也无所谓——下次构建会自动重新下载。CI / Docker 镜像里可以预先跑一次 `install_fonts.py` 加速。
+
+### Emoji 字体（可选系统兜底）
+
+模板里的 💬 / 💡 / ⚠️ / 🚨 等 emoji 图标，本 skill 不打包专门字体，依赖系统兜底：
+
+- **Linux / Docker**：`sudo apt install -y fonts-symbola fonts-noto-color-emoji`
+- **macOS**：自带 Apple Color Emoji，无需配置
+- **Windows**：自带 Segoe UI Emoji，无需配置
+
+如果 emoji 显示成 ☐，是 emoji 字体兜底失败——按上面装一下系统包即可。
+
+### 系统库依赖（WeasyPrint 渲染管线本身）
+
+WeasyPrint 依赖 Pango / Cairo / HarfBuzz 这些 native 库做排版，需要系统级安装一次：
 
 ```bash
 # Debian / Ubuntu
 sudo apt install -y \
   libpangoft2-1.0-0 libpango-1.0-0 libpangocairo-1.0-0 \
   libharfbuzz0b libfontconfig1 libcairo2 \
-  fonts-noto-cjk \
-  fonts-symbola fonts-noto-color-emoji \
   poppler-utils
 ```
 
-| 字体包 | 解决什么 |
-|---|---|
-| `fonts-noto-cjk` | 中文字符（章标题、正文） |
-| **`fonts-symbola`** | **模板里的 💬 / 💡 / ⚠️ / 🚨 等 emoji 图标（这是核心视觉元素，缺了灯泡/对话气泡都会变 ☐）** |
-| `fonts-noto-color-emoji` | emoji 兜底（彩色，部分场景 WeasyPrint 会回退到它） |
-| `poppler-utils` | 提供 `pdftoppm`，给 contact sheet 生成和单页高清 PNG 检查用 |
+`poppler-utils` 提供 `pdftoppm`，给 contact sheet 生成和单页高清 PNG 检查用。
 
 ### 平台说明
 
@@ -126,4 +154,4 @@ scp user@host:/tmp/build/output_sheet.png .
 ssh user@host "rm -rf /tmp/build /tmp/build.tar.gz /tmp/preview_all.py"
 ```
 
-**首次需要在远端装好依赖**（Python 包 + 上面那串 apt 字体包）。装一次永久受益。
+**首次需要在远端装好依赖**（Python 包 + 上面那串 WeasyPrint 系统库；CJK 字体由 `install_fonts.py` 在首次渲染时自动下载，无需 sudo）。装一次永久受益。

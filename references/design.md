@@ -40,14 +40,14 @@ Five role-bearing colors, plus a neutral ramp. Hex values are duplicated in
 | `--ink-soft`      | `#333`    | Step titles, structural labels                               |
 | `--ink-muted`     | `#555`    | Secondary copy, end-card body                                |
 | `--ink-faint`     | `#999`    | Footer page numbers, tertiary captions                       |
-| `--accent-tip`    | `#1976d2` | Tip callout border + heading (blue)                          |
-| `--accent-warn`   | `#ffa000` | Warning callout border + heading (yellow / amber)            |
-| `--accent-stop`   | `#c92a2a` | Stop / forbidden callout border + heading (red)              |
-| `--accent-cc`     | `#7b1fa2` | Claude Code prompt block border + heading (purple)           |
+| `--accent-tip`    | `#1976d2` | Tip callout border + heading (blue, `.callout-tip`)           |
+| `--accent-warn`   | `#ffa000` | Default callout border (yellow, bare `.callout`, "heads-up") |
+| `--accent-stop`   | `#d32f2f` | Severe warning border (red, `.callout-warn`, "do not do this") |
+| `--accent-cc`     | `#7b1fa2` | Claude Code prompt block border + heading (purple, `.callout-cc`) |
 | `--accent-chap`   | `#d63384` | Chapter numeral (零壹贰) tag, magenta-leaning pink           |
 | `--surface-tip`   | `#e3f2fd` | Tip callout background                                       |
-| `--surface-warn`  | `#fff8e1` | Warning callout background                                   |
-| `--surface-stop`  | `#ffebee` | Stop callout background                                      |
+| `--surface-warn`  | `#fff8e1` | Default callout background (yellow tint)                     |
+| `--surface-stop`  | `#ffebee` | Severe warning background (red tint)                         |
 | `--surface-cc`    | `#f3e5f5` | Claude Code block background                                 |
 | `--surface-cover` | gradient  | Cover full-bleed `#f8f9fa → #e9ecef`, 135°                   |
 | `--surface-end`   | `#fafafa` | End-card box                                                 |
@@ -120,14 +120,26 @@ stylesheet is for layout, not punctuation.
 
 ## 5. Callout taxonomy
 
-Four variants, in priority order:
+Four variants, in escalating severity:
 
-| Variant         | When to use                                                |
-| --------------- | ---------------------------------------------------------- |
-| `callout-tip`   | "Here is something useful to know." Optional context.      |
-| `callout-warn`  | "Read this before continuing, or you will hit a snag."     |
-| `callout-stop`  | "Do not do this. It will break things / leak credentials." |
-| `callout-cc`    | "Paste this prompt into Claude Code and continue."         |
+| Variant         | Class                       | When to use                                                 |
+| --------------- | --------------------------- | ----------------------------------------------------------- |
+| Tip             | `callout callout-tip`       | "Here is something useful to know." Optional context.       |
+| Heads-up        | `callout` (bare)            | "Read this before continuing, or you will hit a snag."      |
+| Severe warning  | `callout callout-warn`      | "Do not do this. Credentials leak, irreversible loss, etc." |
+| Claude Code     | `callout callout-cc`        | "Paste this prompt into Claude Code and continue."          |
+
+Two intentional non-obviousnesses about the class names:
+
+- **The bare `.callout` is the heads-up variant, not the tip.** A class
+  with no modifier carries the most common case, and most baomu tutorials
+  need more heads-ups than tips.
+- **`.callout-warn` is the *severe* one (red), not the regular yellow
+  warning.** Authors who skim the CSS may invert this. The class names
+  are kept this way for backward compatibility with already-published
+  tutorials; the rule is: when in doubt about severity, use the bare
+  `.callout` (yellow). Red `.callout-warn` is reserved for things that
+  cost the reader real time, money, or credentials if ignored.
 
 The `callout-cc` block is the **single most distinctive element** of this
 design system. It carries the brand promise: *you do not need to type

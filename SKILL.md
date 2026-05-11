@@ -55,8 +55,9 @@ license: MIT
 
 ### 2.3 套用 HTML 模板
 
-用 `templates/tutorial-template.html` 作为骨架。把它复制到工作目录，改 title 和内容。
-**不要自己写 CSS**——模板里的 CSS 是已经调试过的，改动会引入排版问题。
+用 `templates/tutorial-template.html` 作为骨架。把它复制到工作目录，改 title 和内容。**只需要复制 HTML 一个文件**——样式表 `templates/styles.css` 会由 `build_pdf.py` / `preview_all.py` 在渲染时自动注入，用户工作目录下不需要 styles.css 或 fonts/ 副本。
+
+**不要自己写 CSS** —— 样式表是设计系统的实现，设计规则写在 `references/design.md`（color tokens / type scale / callout taxonomy / 不允许做的事）。如果觉得现有 callout 不够用，先去看 `design.md` 的 §5 和 §7；真有合理需求，按 §8 的演化流程改 `styles.css`，而不是在文章里写一次性 inline style。
 
 ### 2.4 生成 PDF + 扫描 + contact sheet
 

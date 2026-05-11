@@ -10,6 +10,48 @@
  * have a matching token row in references/design.md.
  */
 
+/* ---------- @font-face: bundled fonts ----------
+ *
+ * Fonts are downloaded into <repo>/assets/fonts/ by
+ * `scripts/install_fonts.py` and referenced here relatively from
+ * <repo>/templates/styles.css. local() declarations come first so a
+ * system install (e.g. fonts-noto-cjk on Debian/Ubuntu or PingFang on
+ * macOS) is used when available; bundled OTF/TTF is the fallback.
+ *
+ * If the @font-face url() target is missing, WeasyPrint silently falls
+ * back to whatever's next in the font-family stack. The build script
+ * verifies font presence and re-runs install_fonts.py if needed.
+ */
+
+@font-face {
+  font-family: "Noto Sans CJK SC";
+  font-weight: 400;
+  font-style: normal;
+  src: local("Noto Sans CJK SC"),
+       local("Source Han Sans SC"),
+       local("PingFang SC"),
+       url("../assets/fonts/NotoSansCJKsc-Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Noto Sans CJK SC";
+  font-weight: 700;
+  font-style: normal;
+  src: local("Noto Sans CJK SC Bold"),
+       local("Source Han Sans SC Bold"),
+       local("PingFang SC Semibold"),
+       url("../assets/fonts/NotoSansCJKsc-Bold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-weight: 400;
+  font-style: normal;
+  src: local("JetBrains Mono"),
+       url("../assets/fonts/JetBrainsMono-Regular.ttf") format("truetype");
+}
+
+
   @page {
     size: A4;
     margin: 2cm 2cm 2.5cm 2cm;
@@ -213,7 +255,7 @@
 
   /* 代码块 */
   pre, code {
-    font-family: "SF Mono", "Monaco", "Menlo", "Consolas", "Courier New", monospace;
+    font-family: "JetBrains Mono", "SF Mono", "Monaco", "Menlo", "Consolas", "Courier New", monospace;
   }
 
   pre {
@@ -267,7 +309,7 @@
     padding: 12px 16px;
     margin: 0.3cm 0;
     border-radius: 4px;
-    font-family: "SF Mono", "Monaco", monospace;
+    font-family: "JetBrains Mono", "SF Mono", "Monaco", monospace;
     font-size: 9.5pt;
     line-height: 1.6;
     color: #333;
@@ -358,7 +400,7 @@
     padding: 16px;
     margin: 0.4cm 0;
     border-radius: 4px;
-    font-family: "SF Mono", "Monaco", monospace;
+    font-family: "JetBrains Mono", "SF Mono", "Monaco", monospace;
     font-size: 9pt;
     line-height: 1.7;
     page-break-inside: avoid;
