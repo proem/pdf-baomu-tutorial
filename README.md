@@ -1,5 +1,5 @@
 <p align="center">
-<img src="skills/pdf-baomu-tutorial/docs/images/logo.png" alt="pdf-baomu-tutorial" width="330">
+<img src="docs/images/logo.png" alt="pdf-baomu-tutorial" width="330">
 </p>
 <h1 align="center">pdf-baomu-tutorial</h1>
 
@@ -27,15 +27,15 @@ git clone https://github.com/proem/pdf-baomu-tutorial.git ~/.claude/skills/pdf-b
 
 重启 Claude Code 会话生效。
 
-![封面页](skills/pdf-baomu-tutorial/docs/images/01_cover.png)
+![封面页](docs/images/01_cover.png)
 
 视觉风格：封面全出血灰色渐变、中文数字章节（零壹贰叁）、紫色“让 Claude Code 帮你”引导块、黑色圆形步骤编号、三色语义高亮框（蓝提示 / 黄警告 / 红禁止 / 紫 Claude Code）。
 
-![核心视觉元素一览](skills/pdf-baomu-tutorial/docs/images/02_elements.png)
+![核心视觉元素一览](docs/images/02_elements.png)
 
 完整 6 页鸟瞰：
 
-![全文鸟瞰图](skills/pdf-baomu-tutorial/docs/images/03_overview.png)
+![全文鸟瞰图](docs/images/03_overview.png)
 
 ## 触发词
 
