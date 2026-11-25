@@ -1,6 +1,6 @@
 {
   "name": "@proem/pdf-baomu-tutorial",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "保姆教程风格 PDF 生成 — 中文小白向技术教程的统一视觉模板",
   "private": true,
   "keywords": [
